@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>test session cookies</title>
+    <!-- <script language="JavaScript" type="text/javascript" src="script.js"> </script> -->
+    <!-- <script src="./script.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script> -->
+    <script src="./script.js"></script>
+
+  </head>
+  <body>
+    <h1>test session cookies</h1>
+    <p>
+    The whole point of HttpOnly cookies is that they can't be accessed by JavaScript.
+    </p>
+
+      <hr>
+      <div id="output"></div>
+      <hr>
+      <button id="show-cookie-value">show-cookie</button>
+      <button id="mod-cookie-value">modify-cookie</button>
+
+    <script>
+       document.getElementById('mod-cookie-value').addEventListener('click', () => {modCookieValue()}, false);
+       document.getElementById('show-cookie-value').addEventListener('click', () => {showCookieValue()}, false);
+    </script>
+  </body>
+</html>
