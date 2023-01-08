@@ -15,5 +15,6 @@ function getFacts() {
 }
 
 window.onload = function() {
+  console.log("onload called");
   document.getElementById('getFacts').addEventListener('click', getFacts);
 }
