@@ -1,4 +1,4 @@
-function getFacts(){
+function getFacts() {
   fetch('../api/cat-facts')
   .then((res) => res.json())
   .then((data) => {
@@ -12,4 +12,8 @@ function getFacts(){
     //});
     document.getElementById('output').innerHTML = output;
   })
+}
+
+window.onload = function() {
+  document.getElementById('getFacts').addEventListener('click', getFacts);
 }
