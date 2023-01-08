@@ -1,15 +1,4 @@
-console.log("test");
-
-// program to convert celsius to fahrenheit
-// ask the celsius value to the user 
-//const celsius = prompt("Enter a celsius value: ");
-
-// calculate fahrenheit
-//const fahrenheit = (celsius * 1.8) + 32
-
-// display the result
-//console.log(`${celsius} degree celsius is equal to ${fahrenheit} degree fahrenheit.`);
-
+console.log("temperature conversion");
 
 function cToF(celsius) {
   var cTemp = celsius;
@@ -23,6 +12,7 @@ function fToC(fahrenheit) {
   var fToCel = (fTemp - 32) * 5 / 9;
   var message = fTemp+'\xB0F is ' + fToCel + '\xB0C.';
   console.log(message);
-} 
-cToF(60);
-fToC(45);
+}
+
+cToF(0);
+fToC(32);

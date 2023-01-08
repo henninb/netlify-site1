@@ -3,14 +3,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cat Facts</title>
+  <script src="script.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
-
 </head>
 <body>
   <div class="container">
     <h1 class="display-4 mb-4">Cat Facts</h1>
     <div class="d-flex">
-      <button class="btn btn-warning mr-4" id="getPosts">fetch data</button>
+      <button class="btn btn-warning mr-4" id="getFacts">fetch data</button>
     </div>
     <hr>
     <div id="output"></div>
@@ -18,24 +19,7 @@
   </div>
 
   <script>
-    document.getElementById('getPosts').addEventListener('click', getPosts);
-
-    function getPosts(){
-      fetch('../api/cat-facts')
-      .then((res) => res.json())
-      .then((data) => {
-        let output = '<h2 class="mb-4">Cat Facts</h2>';
-        //data.forEach(function(post){
-          output += `
-            <div class="card card-body mb-3">
-              <h3>${data.fact}</h3>
-            </div>
-          `;
-        //});
-        document.getElementById('output').innerHTML = output;
-      })
-    }
-
+    document.getElementById('getFacts').addEventListener('click', getFacts);
   </script>
 </body>
 </html>
