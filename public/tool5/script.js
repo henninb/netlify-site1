@@ -1,15 +1,17 @@
 function getGames() {
-  fetch('../api/cat-facts')
+  fetch('../api/hockey')
   .then((res) => res.json())
   .then((data) => {
-    let output = '<h2 class="mb-4">Cat Facts</h2>';
-    //data.forEach(function(fact){
+    let output = '<h2 class="mb-4">Games</h2>';
+    data.forEach(function(games){
       output += `
         <div class="card card-body mb-3">
-          <h3>${data.fact}</h3>
+          <p>${games.DateUtc}</p>
+          <h3>${games.HomeTeam}</h3>
+          <p>${games.AwayTeam}</p>
         </div>
       `;
-    //});
+    });
     document.getElementById('output').innerHTML = output;
   })
 }
