@@ -1,14 +1,9 @@
 import fetch from 'node-fetch';
 
-const year =  new Date().getFullYear()
-const url = new URL('https://statsapi.mlb.com/api/v1/schedule')
+//https://scsuhuskies.com/services/scores_chris.aspx?format=json
+const url = new URL('https://scsuhuskies.com/services/scores_chris.aspx')
 const params = {
-      startDate: "1/01/" + year,
-      endDate: "12/31/" + year,
-      gameTypes: "R",
-      sportId: "1",
-      teamId: "142",
-      hydrate:"decisions",
+      format:"json",
 }
 
 url.search = new URLSearchParams(params).toString()
