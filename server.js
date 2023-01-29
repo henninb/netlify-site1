@@ -30,7 +30,19 @@ app.get('/api/board', async (_req, response) => {
 });
 
 app.get('/api/huskies', async (_req, response) => {
-  res = await fetch('https://scsuhuskies.com/services/scores_chris.aspx')
+  const url = new URL('https://scsuhuskies.com/services/scores_chris.aspx')
+  const params = {
+        format:"json",
+  }
+
+  url.search = new URLSearchParams(params).toString()
+  res = await fetch(url.toString(), {
+        method: 'GET',
+        redirect: 'follow',
+        headers: {
+          "Content-Type": "application/json",
+        },
+  })
   data = await res.json()
   response.send(JSON.stringify(data))
 });
