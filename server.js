@@ -17,6 +17,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(cors());
 
-app.post('/api/login', (_req, res) => {
-   res.send('api login POST called.');
+app.get('/api/cat-facts', async (_req, response) => {
+  res = await fetch('https://catfact.ninja/fact')
+  data = await res.json()
+  response.send('api cat-facts called.');
 });
