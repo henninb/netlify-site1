@@ -20,6 +20,30 @@ app.use(cors());
 app.get('/api/cat-facts', async (_req, response) => {
   res = await fetch('https://catfact.ninja/fact')
   data = await res.json()
-  //response.send('api cat-facts called.');
+  response.send(JSON.stringify(data))
+});
+
+app.get('/api/baseball', async (_req, response) => {
+  const year =  new Date().getFullYear()
+  const url = new URL('https://statsapi.mlb.com/api/v1/schedule')
+  const params = {
+        startDate: "1/01/" + year,
+        endDate: "12/31/" + year,
+        gameTypes: "R",
+        sportId: "1",
+        teamId: "142",
+        hydrate:"decisions",
+  }
+
+  url.search = new URLSearchParams(params).toString()
+
+  res = await fetch(url.toString(), {
+        method: 'GET',
+        redirect: 'follow',
+        headers: {
+          "Content-Type": "application/json",
+        },
+  })
+  data = await res.json()
   response.send(JSON.stringify(data))
 });
