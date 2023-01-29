@@ -20,5 +20,6 @@ app.use(cors());
 app.get('/api/cat-facts', async (_req, response) => {
   res = await fetch('https://catfact.ninja/fact')
   data = await res.json()
-  response.send('api cat-facts called.');
+  //response.send('api cat-facts called.');
+  response.send(JSON.stringify(data))
 });
