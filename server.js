@@ -29,6 +29,12 @@ app.get('/api/board', async (_req, response) => {
   response.send(JSON.stringify(data))
 });
 
+app.get('/api/huskies', async (_req, response) => {
+  res = await fetch('https://scsuhuskies.com/services/scores_chris.aspx')
+  data = await res.json()
+  response.send(JSON.stringify(data))
+});
+
 app.get('/api/baseball', async (_req, response) => {
   const year =  new Date().getFullYear()
   const url = new URL('https://statsapi.mlb.com/api/v1/schedule')
