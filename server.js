@@ -29,6 +29,12 @@ app.get('/api/board', async (_req, response) => {
   response.send(JSON.stringify(data))
 });
 
+app.get('/api/hockey', async (_req, response) => {
+  res = await fetch('https://fixturedownload.com/feed/json/nhl-2022/minnesota-wild')
+  data = await res.json()
+  response.send(JSON.stringify(data))
+});
+
 app.get('/api/huskies', async (_req, response) => {
   const url = new URL('https://scsuhuskies.com/services/scores_chris.aspx')
   const params = {
