@@ -1,40 +1,477 @@
-<html>
-  <head>
-    <title>site1</title>
-  </head>
-  <body>
-    <ui>
-    <li><a href="/tool1">tool1</a></li>
-    <li><a href="/tool2">temperature-converter</a></li>
-    <li><a href="/tool3">Fetch</a></li>
-    <li><a href="/tool4">cat-facts</a></li>
-    <li><a href="/tool5">Hockey</a></li>
-    <li><a href="/tool6">Board</a></li>
-    <li><a href="/tool7">Login</a></li>
-    <li><a href="/tool8">Spotify</a></li>
-    <li><a href="/tool9">wifi-psk</a></li>
-    <li><a href="/tool10">Blog</a></li>
-    <li><a href="/tool11">Spinner</a></li>
-    <li><a href="/tool12">session-cookie</a></li>
-    <li><a href="/tool13">tool13</a></li>
-    <li><a href="/.netlify/functions/hello">hello</a></li>
-    <li><a href="/api/board">board-api</a></li>
-    <li><a href="/api/cat-facts">cat-facts-api</a></li>
-    <li><a href="/api/hockey">hockey-api</a></li>
-    <li><a href="/api/baseball">baseball-api</a></li>
-    <li><a href="/api/huskies">huskies-api</a></li>
-    </ui>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>site1 — bhenning.com</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <ui>
-    <li><a href="https://site1.bhenning.com">site1</a></li>
-    <li><a href="https://site2.bhenning.com">site2</a></li>
-    <li><a href="https://site3.bhenning.com">site3</a></li>
-    <li><a href="https://site4.bhenning.com">site4</a></li>
-    <li><a href="https://site5.bhenning.com">site5</a></li>
-    <li><a href="https://site6.bhenning.com">site6</a></li>
-    <li><a href="https://site7.bhenning.com">site7</a></li>
-    <li><a href="https://site8.bhenning.com">site8</a></li>
-    <li><a href="https://site9.bhenning.com">site9</a></li>
-    </ui>
-  </body>
+    :root {
+      --bg:           #0b0b0d;
+      --surface:      #111115;
+      --surface-hi:   #18181e;
+      --border:       #232330;
+      --border-hi:    #3a3a52;
+      --accent:       #e8a04a;
+      --accent-glow:  rgba(232, 160, 74, 0.10);
+      --accent-dim:   rgba(232, 160, 74, 0.45);
+      --text:         #c8c4b8;
+      --text-muted:   #5a5750;
+      --text-bright:  #edeae0;
+    }
+
+    html {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', 'Lucida Console', 'Monaco', monospace;
+      min-height: 100vh;
+    }
+
+    /* subtle dot-grid backdrop */
+    body {
+      min-height: 100vh;
+      padding: 3.5rem 2rem 5rem;
+      max-width: 1120px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(232,160,74,0.06) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* vignette */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(11,11,13,0.85) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Header ───────────────────────────────────── */
+    header {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 3.5rem;
+    }
+
+    .header-eyebrow {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: normal;
+      color: var(--text-bright);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .header-sub {
+      margin-top: 0.8rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .header-rule {
+      margin-top: 1.75rem;
+      height: 1px;
+      background: linear-gradient(to right, var(--border-hi), var(--border), transparent);
+    }
+
+    /* ── Sections ─────────────────────────────────── */
+    section {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 3rem;
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-label h2 {
+      font-size: 0.6rem;
+      font-weight: normal;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Card Grid ────────────────────────────────── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .card {
+      position: relative;
+      background: var(--surface);
+      padding: 1rem 1.1rem 1rem;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      overflow: hidden;
+      transition: background 0.12s ease, color 0.12s ease;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--accent-glow);
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+
+    .card:hover {
+      background: var(--surface-hi);
+    }
+
+    .card:hover::after {
+      opacity: 1;
+    }
+
+    .card:hover .card-name {
+      color: var(--accent);
+    }
+
+    .card:hover .arrow {
+      transform: translate(3px, -3px);
+      color: var(--accent);
+    }
+
+    .card-name {
+      font-size: 0.82rem;
+      color: var(--text-bright);
+      transition: color 0.12s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-path {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.48rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.15em 0.45em;
+      border: 1px solid var(--border-hi);
+      border-radius: 2px;
+      color: var(--text-muted);
+      width: fit-content;
+      position: relative;
+      z-index: 1;
+      transition: color 0.12s, border-color 0.12s;
+    }
+
+    .card:hover .badge {
+      color: var(--accent-dim);
+      border-color: var(--accent-dim);
+    }
+
+    .arrow {
+      position: absolute;
+      top: 0.7rem;
+      right: 0.75rem;
+      font-size: 0.65rem;
+      color: var(--border-hi);
+      transition: transform 0.12s ease, color 0.12s ease;
+      z-index: 1;
+    }
+
+    /* ── Footer ───────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 1rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* ── Animation ────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* stagger cards */
+    .card:nth-child(1)  { animation-delay: 0.04s; }
+    .card:nth-child(2)  { animation-delay: 0.07s; }
+    .card:nth-child(3)  { animation-delay: 0.10s; }
+    .card:nth-child(4)  { animation-delay: 0.13s; }
+    .card:nth-child(5)  { animation-delay: 0.16s; }
+    .card:nth-child(6)  { animation-delay: 0.19s; }
+    .card:nth-child(7)  { animation-delay: 0.22s; }
+    .card:nth-child(8)  { animation-delay: 0.25s; }
+    .card:nth-child(9)  { animation-delay: 0.28s; }
+    .card:nth-child(10) { animation-delay: 0.31s; }
+    .card:nth-child(11) { animation-delay: 0.34s; }
+    .card:nth-child(12) { animation-delay: 0.37s; }
+    .card:nth-child(13) { animation-delay: 0.40s; }
+    .card:nth-child(14) { animation-delay: 0.43s; }
+    .card:nth-child(15) { animation-delay: 0.46s; }
+    .card:nth-child(16) { animation-delay: 0.49s; }
+    .card:nth-child(17) { animation-delay: 0.52s; }
+    .card:nth-child(18) { animation-delay: 0.55s; }
+    .card:nth-child(19) { animation-delay: 0.58s; }
+    .card:nth-child(20) { animation-delay: 0.61s; }
+    .card:nth-child(21) { animation-delay: 0.64s; }
+    .card:nth-child(22) { animation-delay: 0.67s; }
+
+    /* ── Responsive ───────────────────────────────── */
+    @media (max-width: 480px) {
+      body { padding: 2rem 1.25rem 4rem; }
+      .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="header-eyebrow">bhenning.com / dashboard</p>
+    <h1>site<em>1</em></h1>
+    <p class="header-sub">tools &amp; utilities — select a destination</p>
+    <div class="header-rule"></div>
+  </header>
+
+  <section>
+    <div class="section-label"><h2>Tools &amp; APIs</h2></div>
+    <div class="grid">
+
+      <a href="/tool1" class="card">
+        <span class="card-name">tool1</span>
+        <span class="card-path">/tool1</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool2" class="card">
+        <span class="card-name">temperature-converter</span>
+        <span class="card-path">/tool2</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool3" class="card">
+        <span class="card-name">Fetch</span>
+        <span class="card-path">/tool3</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool4" class="card">
+        <span class="card-name">cat-facts</span>
+        <span class="card-path">/tool4</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool5" class="card">
+        <span class="card-name">Hockey</span>
+        <span class="card-path">/tool5</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool6" class="card">
+        <span class="card-name">Board</span>
+        <span class="card-path">/tool6</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool7" class="card">
+        <span class="card-name">Login</span>
+        <span class="card-path">/tool7</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool8" class="card">
+        <span class="card-name">Spotify</span>
+        <span class="card-path">/tool8</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool9" class="card">
+        <span class="card-name">wifi-psk</span>
+        <span class="card-path">/tool9</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool10" class="card">
+        <span class="card-name">Blog</span>
+        <span class="card-path">/tool10</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool11" class="card">
+        <span class="card-name">Spinner</span>
+        <span class="card-path">/tool11</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool12" class="card">
+        <span class="card-name">session-cookie</span>
+        <span class="card-path">/tool12</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/tool13" class="card">
+        <span class="card-name">tool13</span>
+        <span class="card-path">/tool13</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/.netlify/functions/hello" class="card">
+        <span class="card-name">hello</span>
+        <span class="badge">fn</span>
+        <span class="card-path">/.netlify/functions/hello</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/api/board" class="card">
+        <span class="card-name">board</span>
+        <span class="badge">api</span>
+        <span class="card-path">/api/board</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/api/cat-facts" class="card">
+        <span class="card-name">cat-facts</span>
+        <span class="badge">api</span>
+        <span class="card-path">/api/cat-facts</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/api/hockey" class="card">
+        <span class="card-name">hockey</span>
+        <span class="badge">api</span>
+        <span class="card-path">/api/hockey</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/api/baseball" class="card">
+        <span class="card-name">baseball</span>
+        <span class="badge">api</span>
+        <span class="card-path">/api/baseball</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="/api/huskies" class="card">
+        <span class="card-name">huskies</span>
+        <span class="badge">api</span>
+        <span class="card-path">/api/huskies</span>
+        <span class="arrow">↗</span>
+      </a>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-label"><h2>Sites</h2></div>
+    <div class="grid">
+
+      <a href="https://site1.bhenning.com" class="card">
+        <span class="card-name">site1</span>
+        <span class="card-path">site1.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site2.bhenning.com" class="card">
+        <span class="card-name">site2</span>
+        <span class="card-path">site2.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site3.bhenning.com" class="card">
+        <span class="card-name">site3</span>
+        <span class="card-path">site3.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site4.bhenning.com" class="card">
+        <span class="card-name">site4</span>
+        <span class="card-path">site4.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site5.bhenning.com" class="card">
+        <span class="card-name">site5</span>
+        <span class="card-path">site5.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site6.bhenning.com" class="card">
+        <span class="card-name">site6</span>
+        <span class="card-path">site6.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site7.bhenning.com" class="card">
+        <span class="card-name">site7</span>
+        <span class="card-path">site7.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site8.bhenning.com" class="card">
+        <span class="card-name">site8</span>
+        <span class="card-path">site8.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+      <a href="https://site9.bhenning.com" class="card">
+        <span class="card-name">site9</span>
+        <span class="card-path">site9.bhenning.com</span>
+        <span class="arrow">↗</span>
+      </a>
+
+    </div>
+  </section>
+
+  <footer>bhenning.com &mdash; site1</footer>
+
+</body>
 </html>
