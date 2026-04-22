@@ -1,16 +1,37 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-netlify deploy --prod
+set -euo pipefail
 
-docker stop nginx-server
-docker rm -f nginx-server
-docker rmi nginx-server
-docker-compose build
-docker-compose up -d
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR"
 
-echo netlify dev
-echo netlify function:create
-echo netlify functions:invoke
-# echo npx netlify-lambda build src
+PORT="${PORT:-3000}"
 
-exit 0
+if ! command -v node >/dev/null 2>&1; then
+  echo "Node.js is required but was not found in PATH."
+  exit 1
+fi
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo "npm is required but was not found in PATH."
+  exit 1
+fi
+
+if [ ! -d node_modules ]; then
+  echo "Installing dependencies..."
+  npm install
+fi
+
+echo "Starting local app on http://localhost:${PORT}"
+
+if command -v netlify >/dev/null 2>&1; then
+  exec netlify dev --port "${PORT}"
+fi
+
+if command -v npx >/dev/null 2>&1; then
+  exec npx netlify dev --port "${PORT}"
+fi
+
+echo "Netlify CLI was not found. Falling back to server.js."
+export PORT
+exec node server.js
