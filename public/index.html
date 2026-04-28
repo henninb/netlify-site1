@@ -473,5 +473,28 @@
 
   <footer>bhenning.com &mdash; site1</footer>
 
+  <script>
+    (function () {
+      const hostname = window.location.hostname;
+      const domain = hostname.endsWith('brianhenning.com') ? 'brianhenning.com' : 'bhenning.com';
+
+      if (domain === 'bhenning.com') return;
+
+      document.title = document.title.replace('bhenning.com', domain);
+
+      const eyebrow = document.querySelector('.header-eyebrow');
+      if (eyebrow) eyebrow.textContent = eyebrow.textContent.replace('bhenning.com', domain);
+
+      const footer = document.querySelector('footer');
+      if (footer) footer.innerHTML = footer.innerHTML.replace('bhenning.com', domain);
+
+      document.querySelectorAll('a[href*="bhenning.com"]').forEach(function (a) {
+        a.setAttribute('href', a.getAttribute('href').replace('bhenning.com', domain));
+        const path = a.querySelector('.card-path');
+        if (path) path.textContent = path.textContent.replace('bhenning.com', domain);
+      });
+    })();
+  </script>
+
 </body>
 </html>
