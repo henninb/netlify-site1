@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opt out of location services</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #505050;
+            background: #f2f2f2;
+            min-height: 100vh;
+        }
+
+        a {
+            color: #0067b8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main */
+        .main {
+            max-width: 900px;
+            margin: 0;
+            padding: 48px 48px 80px;
+        }
+
+        h1 {
+            margin: 0 0 24px;
+            font-size: 46px;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #262626;
+            letter-spacing: -0.02em;
+        }
+
+        .intro p {
+            margin: 0 0 16px;
+            max-width: 720px;
+            color: #505050;
+        }
+
+        /* Form */
+        .form {
+            margin-top: 40px;
+            max-width: 480px;
+        }
+
+        .field {
+            margin-bottom: 24px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #262626;
+        }
+
+        .field input[type="text"] {
+            width: 100%;
+            max-width: 400px;
+            height: 40px;
+            padding: 0 12px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #262626;
+            background: #fff;
+            border: 1px solid #d1d1d1;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .field input[type="text"]:focus {
+            border-color: #0067b8;
+            box-shadow: 0 0 0 3px rgba(0, 103, 184, 0.15);
+        }
+
+        .field input[type="text"]::placeholder {
+            color: #a19f9d;
+        }
+
+        .captcha-section {
+            margin-bottom: 28px;
+            max-width: 380px;
+        }
+
+        .verify-card {
+            max-width: 400px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.2s ease;
+        }
+
+        .verify-card.is-complete {
+            border-color: #c7e0c7;
+        }
+
+        .human-challenge {
+            text-align: center;
+        }
+
+        .human-challenge__title {
+            margin: 0;
+            padding: 24px 24px 0;
+            color: #626364;
+            font-size: 29px;
+            font-weight: 500;
+            font-family: Roboto, sans-serif;
+            line-height: 1.2;
+        }
+
+        .human-challenge__message {
+            margin: 0;
+            padding: 12px 24px 20px;
+            color: #626364;
+            font-size: 18px;
+            font-family: Roboto, sans-serif;
+            line-height: 1.45;
+        }
+
+        .human-challenge__reference {
+            margin: 0;
+            padding: 12px 24px 16px;
+            border-top: 1px solid #edebe9;
+            background: #f5f5f5;
+            color: #8a8886;
+            font-size: 12px;
+            font-family: Roboto, sans-serif;
+            line-height: 1.4;
+        }
+
+        .captcha-frame-wrap {
+            padding: 0 24px 20px;
+            background: #fff;
+        }
+
+        .captcha-frame-inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+
+        /* Iframe viewport is larger than the 253×50 button (border, focus ring). */
+        #challengeIframe {
+            display: block;
+            width: 300px;
+            height: 80px;
+            border: none;
+            background: transparent;
+        }
+
+        @media (max-width: 480px) {
+            #challengeIframe {
+                width: 340px;
+                height: 92px;
+            }
+        }
+
+        .captcha-succeeded {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px;
+        }
+
+        .captcha-succeeded[hidden] {
+            display: none;
+        }
+
+        .captcha-succeeded__icon {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dff6dd;
+            color: #107c10;
+        }
+
+        .captcha-succeeded__icon svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .captcha-succeeded__text strong {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #262626;
+            margin-bottom: 2px;
+        }
+
+        .captcha-succeeded__text span {
+            font-size: 13px;
+            color: #737373;
+        }
+
+        .submit-btn {
+            margin-top: 8px;
+            min-width: 108px;
+            height: 40px;
+            padding: 0 24px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            color: #fff;
+            background: #0067b8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+
+        .submit-btn:not(:disabled):active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            color: #fff;
+            background: #c8c6c4;
+            cursor: not-allowed;
+        }
+
+        .submit-btn:not(:disabled):hover {
+            background: #005a9e;
+        }
+
+        .submit-status {
+            margin: 8px 0 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .submit-status.is-error {
+            color: #a4262c;
+        }
+
+        .submit-status.is-success {
+            color: #107c10;
+        }
+
+        .debug-panel {
+            margin-top: 32px;
+            max-width: 640px;
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .debug-panel h2 {
+            margin: 0 0 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .debug-panel__row {
+            margin: 0 0 12px;
+        }
+
+        .debug-panel__label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #605e5c;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .debug-panel__value {
+            margin: 0;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: #262626;
+            word-break: break-all;
+        }
+
+        .debug-panel__value.is-missing {
+            color: #a4262c;
+        }
+
+        .debug-panel pre {
+            margin: 0;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12px;
+            line-height: 1.45;
+            color: #262626;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+
+        /* Hide legacy Feedback control if a cached copy of the page still has it */
+        .feedback-btn {
+            display: none !important;
+        }
+
+    </style>
+</head>
+
+<body>
+    <main class="main">
+        <h1>Opt out of location services</h1>
+
+        <div class="intro">
+            <p>Microsoft operates a location service that helps determine the approximate geographic location of your computer or mobile device. To do this, Microsoft collects MAC addresses of wireless access points in the area. These addresses are only stored as part of a location database, and we do not use them for any other purpose.</p>
+            <p>If you do not want your MAC address to be used as part of our location services database, you can request to have it excluded here.</p>
+            <p>Your MAC address is stored on your router and can be found in your device's settings or the documentation that came with it. You enter it in a format like this: 11:aa:22:bb:3c:4d.</p>
+        </div>
+
+        <form class="form" id="optOutForm" action="#" method="post" novalidate>
+            <div class="field">
+                <label for="macAddress">Enter your MAC address</label>
+                <input type="text" id="macAddress" name="macAddress" value="11:aa:22:bb:3c:4d" placeholder="Example: 11:aa:22:bb:3c:4d" autocomplete="off" spellcheck="false">
+            </div>
+
+            <div class="captcha-section">
+                <div class="verify-card" id="verifyCard">
+                    <div class="human-challenge" id="humanChallenge">
+                        <h2 class="human-challenge__title" id="challengeTitle"></h2>
+                        <p class="human-challenge__message" id="challengeMessage"></p>
+                        <div class="captcha-frame-wrap" id="captchaWrap">
+                            <div class="captcha-frame-inner">
+                                <iframe id="challengeIframe" title="Verification challenge" width="300" height="80"></iframe>
+                            </div>
+                        </div>
+                        <p class="human-challenge__reference" id="challengeReference"></p>
+                    </div>
+                    <div class="captcha-succeeded" id="captchaSuccess" hidden>
+                        <div class="captcha-succeeded__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        </div>
+                        <div class="captcha-succeeded__text">
+                            <strong>Verified</strong>
+                            <span>You're cleared to submit your request.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="submit-status" id="submitStatus" hidden></p>
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>Submit</button>
+
+            <section class="debug-panel" id="debugPanel" aria-live="polite">
+                <h2>Enforce debug</h2>
+                <div class="debug-panel__row">
+                    <span class="debug-panel__label">client_ip</span>
+                    <p class="debug-panel__value is-missing" id="clientIpValue">Loading…</p>
+                </div>
+                <div class="debug-panel__row">
+                    <span class="debug-panel__label">SAPI request object</span>
+                    <pre id="sapiRequestValue">Submit the form to build the Enforce payload.</pre>
+                </div>
+            </section>
+        </form>
+    </main>
+
+    <script>
+        let humanIframeOrigin = '';
+        let appId = '';
+        const CHALLENGE_UUID = crypto.randomUUID();
+
+        const challengeIframe = document.getElementById('challengeIframe');
+        const verifyCard = document.getElementById('verifyCard');
+        const humanChallenge = document.getElementById('humanChallenge');
+        const challengeTitleEl = document.getElementById('challengeTitle');
+        const challengeMessageEl = document.getElementById('challengeMessage');
+        const challengeReferenceEl = document.getElementById('challengeReference');
+        const captchaWrap = document.getElementById('captchaWrap');
+        const captchaSuccess = document.getElementById('captchaSuccess');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitStatus = document.getElementById('submitStatus');
+        const clientIpValue = document.getElementById('clientIpValue');
+        const sapiRequestValue = document.getElementById('sapiRequestValue');
+        const macInput = document.getElementById('macAddress');
+        const form = document.getElementById('optOutForm');
+
+        let captchaPassed = false;
+        let cookiesSettled = false;
+        let humanSessionUuid = CHALLENGE_UUID;
+        let challengeRequestUrl = location.href.split('#')[0];
+        const humanCookies = {};
+
+        const MAC_PATTERN = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+        /** _px3 often arrives shortly after succeeded; wait before enabling submit. */
+        const COOKIE_SETTLE_MS = 1500;
+        const COOKIE_POLL_MS = 250;
+        const COOKIE_POLL_MAX_MS = 5000;
+        const PRE_SUBMIT_MS = 400;
+
+        function sleep(ms) {
+            return new Promise((resolve) => setTimeout(resolve, ms));
+        }
+
+        function buildEnforceRequestBody() {
+            const cookiesForSubmit = collectHumanCookiesForSubmit();
+            const px3 = cookiesForSubmit._px3 || cookiesForSubmit.px3 || '';
+            const pxvid = cookiesForSubmit._pxvid || cookiesForSubmit.pxvid || getVid() || '';
+            const pxcts = cookiesForSubmit._pxcts || cookiesForSubmit.pxcts || '';
+            return {
+                uuid: humanSessionUuid,
+                vid: pxvid,
+                px3,
+                pxvid,
+                pxcts,
+                pageUrl: location.href.split('#')[0],
+                challengeRequestUrl,
+                cookieHeader: document.cookie,
+                humanCookies: cookiesForSubmit,
+            };
+        }
+
+        function getCookie(name) {
+            const match = document.cookie.match(
+                new RegExp('(?:^|;\\s*)' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]+)')
+            );
+            return match ? decodeURIComponent(match[1]) : '';
+        }
+
+        function getVid() {
+            return humanCookies._pxvid || getCookie('_pxvid') || getCookie('pxvid');
+        }
+
+        function setHumanCookie(name, value, expires) {
+            if (!name || value == null || value === '') return;
+            humanCookies[name] = value;
+            const parts = [`${name}=${value}`, 'path=/', 'SameSite=Lax'];
+            if (expires && !Number.isNaN(Date.parse(expires))) {
+                parts.push(`expires=${expires}`);
+            } else {
+                parts.push('max-age=3600');
+            }
+            document.cookie = parts.join('; ');
+        }
+
+        function syncCookiesFromDocument() {
+            if (!document.cookie) return;
+            for (const part of document.cookie.split(';')) {
+                const trimmed = part.trim();
+                if (!trimmed) continue;
+                const eq = trimmed.indexOf('=');
+                if (eq === -1) continue;
+                const name = trimmed.slice(0, eq).trim();
+                const value = trimmed.slice(eq + 1);
+                if (name.startsWith('_px') || name.startsWith('px') || name === '_pxff_tm') {
+                    try {
+                        humanCookies[name] = decodeURIComponent(value);
+                    } catch {
+                        humanCookies[name] = value;
+                    }
+                }
+            }
+        }
+
+        function collectHumanCookiesForSubmit() {
+            syncCookiesFromDocument();
+            return { ...humanCookies };
+        }
+
+        function hasHumanSessionCookies() {
+            syncCookiesFromDocument();
+            return Boolean(
+                humanCookies._px3 ||
+                humanCookies.px3 ||
+                getCookie('_px3') ||
+                getCookie('px3')
+            );
+        }
+
+        async function waitForClearanceCookie(maxMs) {
+            const deadline = Date.now() + maxMs;
+            while (Date.now() < deadline) {
+                syncCookiesFromDocument();
+                if (hasHumanSessionCookies()) {
+                    return true;
+                }
+                await sleep(COOKIE_POLL_MS);
+            }
+            syncCookiesFromDocument();
+            return hasHumanSessionCookies();
+        }
+
+        async function settleCookiesAfterChallenge() {
+            cookiesSettled = false;
+            updateSubmitState();
+            setSubmitStatus('Waiting for security cookies…', '');
+
+            await sleep(COOKIE_SETTLE_MS);
+            await waitForClearanceCookie(COOKIE_POLL_MAX_MS);
+
+            cookiesSettled = hasHumanSessionCookies();
+            updateSubmitState();
+
+            if (cookiesSettled) {
+                setSubmitStatus('');
+                loadEnforceDebug();
+            } else {
+                setSubmitStatus(
+                    '_px3 not received yet. Wait a few seconds, or complete the challenge again.',
+                    'error'
+                );
+            }
+        }
+
+        function setSubmitStatus(message, type) {
+            if (!message) {
+                submitStatus.hidden = true;
+                submitStatus.textContent = '';
+                submitStatus.className = 'submit-status';
+                return;
+            }
+            submitStatus.hidden = false;
+            submitStatus.textContent = message;
+            submitStatus.className = 'submit-status' + (type ? ' is-' + type : '');
+        }
+
+        function setClientIpDisplay(ip, fallback) {
+            if (ip) {
+                clientIpValue.textContent = fallback ? `${ip} (fallback)` : ip;
+                clientIpValue.classList.toggle('is-missing', Boolean(fallback));
+            } else {
+                clientIpValue.textContent = 'Not resolved (loopback or missing X-Forwarded-For)';
+                clientIpValue.classList.add('is-missing');
+            }
+        }
+
+        function setSapiRequestDisplay(requestObject) {
+            if (!requestObject) {
+                sapiRequestValue.textContent = 'No SAPI request payload yet.';
+                return;
+            }
+            sapiRequestValue.textContent = JSON.stringify(requestObject, null, 2);
+        }
+
+        function applyEnforceDebug(data) {
+            if (Object.prototype.hasOwnProperty.call(data, 'clientIp')) {
+                setClientIpDisplay(data.clientIp, Boolean(data.fallback));
+            }
+            if (Object.prototype.hasOwnProperty.call(data, 'sapiRequest')) {
+                setSapiRequestDisplay(data.sapiRequest);
+            }
+        }
+
+        async function loadEnforceDebug() {
+            try {
+                const pageUrl = location.href.split('#')[0];
+                const response = await fetch(
+                    `/api/enforce-debug?pageUrl=${encodeURIComponent(pageUrl)}`,
+                    { credentials: 'same-origin' }
+                );
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const data = await response.json();
+                applyEnforceDebug(data);
+            } catch {
+                setClientIpDisplay(null, false);
+                sapiRequestValue.textContent =
+                    'Debug API unavailable — restart the server (npm start).';
+            }
+        }
+
+        function updateSubmitState() {
+            const macValid = MAC_PATTERN.test(macInput.value.trim());
+            submitBtn.disabled = !(
+                captchaPassed &&
+                cookiesSettled &&
+                macValid &&
+                hasHumanSessionCookies()
+            );
+        }
+
+        macInput.addEventListener('input', updateSubmitState);
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (submitBtn.disabled) return;
+
+            setSubmitStatus('');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting…';
+
+            try {
+                await sleep(PRE_SUBMIT_MS);
+                const hasPx3 = await waitForClearanceCookie(COOKIE_POLL_MAX_MS);
+                if (!hasPx3) {
+                    throw new Error(
+                        '_px3 clearance cookie not received yet. Wait a few seconds after the challenge, then try again.'
+                    );
+                }
+
+                const submitPayload = {
+                    ...buildEnforceRequestBody(),
+                    macAddress: macInput.value.trim(),
+                    captchaPassed,
+                    submitUrl: `${location.origin}/api/submit`,
+                };
+                submitPayload.submitBodyLength = JSON.stringify(submitPayload).length;
+
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(submitPayload),
+                });
+
+                const data = await response.json().catch(() => ({}));
+                applyEnforceDebug(data);
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Submission failed.');
+                }
+
+                setSubmitStatus(data.message || 'Submitted successfully.', 'success');
+            } catch (err) {
+                setSubmitStatus(err.message, 'error');
+            } finally {
+                submitBtn.textContent = 'Submit';
+                updateSubmitState();
+            }
+        });
+
+        window.addEventListener('message', (e) => {
+            if (e.origin !== humanIframeOrigin) return;
+            if (e.source !== challengeIframe.contentWindow) return;
+
+            const { data } = e;
+            if (!data || typeof data !== 'object') return;
+
+            if (data.type === 'cookie' || data.type === 'setCookie') {
+                setHumanCookie(data.name, data.value, data.expires);
+                updateSubmitState();
+                return;
+            }
+
+            if (Array.isArray(data.cookies)) {
+                data.cookies.forEach((c) => setHumanCookie(c.name, c.value, c.expires));
+                updateSubmitState();
+                return;
+            }
+
+            switch (data.type) {
+                case 'succeeded':
+                    captchaPassed = true;
+                    cookiesSettled = false;
+                    if (data.vid) setHumanCookie('_pxvid', data.vid, data.expires);
+                    if (data.px3) setHumanCookie('_px3', data.px3, data.expires);
+                    if (data.uuid) {
+                        humanSessionUuid = data.uuid;
+                        humanCookies._pxUuid = data.uuid;
+                        applyChallengeCopy();
+                    }
+                    humanChallenge.hidden = true;
+                    captchaSuccess.hidden = false;
+                    verifyCard.classList.add('is-complete');
+                    syncCookiesFromDocument();
+                    updateSubmitState();
+                    settleCookiesAfterChallenge();
+                    break;
+                case 'failed':
+                    setSubmitStatus('Challenge failed. Try again.', 'error');
+                    break;
+                case 'rendered':
+                    if (typeof data.height === 'number' && data.height > 0) {
+                        const h = Math.ceil(data.height);
+                        challengeIframe.height = String(h);
+                        challengeIframe.style.height = h + 'px';
+                    }
+                    if (typeof data.width === 'number' && data.width > 0) {
+                        const w = Math.ceil(data.width);
+                        challengeIframe.width = String(w);
+                        challengeIframe.style.width = w + 'px';
+                    }
+                    break;
+            }
+        });
+
+        /**
+         * HUMAN default challenge copy (host page).
+         * @see https://docs.humansecurity.com/applications/customize-challenge-page
+         */
+        const HUMAN_CHALLENGE_COPY = {
+            title: 'Before we continue...',
+            messageHtml:
+                'Press & Hold to confirm you are<br />a human (and not a bot).',
+            referenceLabel: 'Reference ID',
+            button: 'Press & Hold',
+            failed: 'Please try again',
+        };
+
+        function applyChallengeCopy() {
+            challengeTitleEl.textContent = HUMAN_CHALLENGE_COPY.title;
+            challengeMessageEl.innerHTML = HUMAN_CHALLENGE_COPY.messageHtml;
+            challengeReferenceEl.textContent =
+                `${HUMAN_CHALLENGE_COPY.referenceLabel}: ${humanSessionUuid}`;
+        }
+
+        const HUMAN_BUTTON_SIZE = { width: 253, height: 50 };
+        const HUMAN_BUTTON_SIZE_MOBILE = { width: 306, height: 62 };
+        /** Room around the button inside the iframe (not the button itself). */
+        const HUMAN_IFRAME_VIEWPORT = { width: 300, height: 80 };
+        const HUMAN_IFRAME_VIEWPORT_MOBILE = { width: 340, height: 92 };
+
+        function buttonSizeForViewport() {
+            return window.matchMedia('(max-width: 480px)').matches
+                ? HUMAN_BUTTON_SIZE_MOBILE
+                : HUMAN_BUTTON_SIZE;
+        }
+
+        function iframeViewportForViewport() {
+            return window.matchMedia('(max-width: 480px)').matches
+                ? HUMAN_IFRAME_VIEWPORT_MOBILE
+                : HUMAN_IFRAME_VIEWPORT;
+        }
+
+        function syncIframeViewport() {
+            const { width, height } = iframeViewportForViewport();
+            challengeIframe.width = String(width);
+            challengeIframe.height = String(height);
+            challengeIframe.style.width = width + 'px';
+            challengeIframe.style.height = height + 'px';
+        }
+
+        /**
+         * Iframe config — button only (title/message/reference on host page).
+         * Colors/sizes come from HUMAN platform defaults except explicit button dimensions.
+         */
+        function humanChallengeIframeConfig() {
+            const { width, height } = buttonSizeForViewport();
+            return {
+                challenge: {
+                    context: {
+                        headerText: '',
+                        messageText: '',
+                    },
+                    translation: {
+                        default: {
+                            btn: 'Press & Hold',
+                            failed: 'Please try again',
+                            ctx_hdr: '',
+                            ctx_msg: '',
+                            ctx_rid: '',
+                        },
+                    },
+                    view: {
+                        preset: 1,
+                        width,
+                        height,
+                        textTransform: 'none',
+                    },
+                },
+            };
+        }
+
+        function startChallenge() {
+            applyChallengeCopy();
+            syncIframeViewport();
+            window.addEventListener('resize', syncIframeViewport);
+            challengeIframe.src = `${humanIframeOrigin}/index.html?app_id=${appId}&ch_ctx=1`;
+
+            challengeIframe.addEventListener('load', () => {
+                challengeIframe.contentWindow.postMessage(
+                    {
+                        type: 'setToWindow',
+                        key: '_' + appId,
+                        value: humanChallengeIframeConfig(),
+                    },
+                    humanIframeOrigin
+                );
+
+                challengeRequestUrl = location.href.split('#')[0];
+                challengeIframe.contentWindow.postMessage(
+                    {
+                        type: 'block',
+                        jsonResponse: { vid: getVid(), uuid: humanSessionUuid },
+                        requestUrl: challengeRequestUrl,
+                    },
+                    humanIframeOrigin
+                );
+            }, { once: true });
+        }
+
+        async function bootstrap() {
+            const response = await fetch('/api/config');
+            const config = await response.json().catch(() => ({}));
+            if (!response.ok || !config.humanAppId) {
+                setSubmitStatus(
+                    config.error || 'Server config missing. Set HUMAN_APP_ID in .env and restart.',
+                    'error'
+                );
+                submitStatus.hidden = false;
+                return;
+            }
+
+            humanIframeOrigin = config.humanIframeOrigin;
+            appId = config.humanAppId;
+            loadEnforceDebug();
+            startChallenge();
+        }
+
+        bootstrap();
+    </script>
+</body>
+
+</html>

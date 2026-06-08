@@ -18,10 +18,15 @@ An Express.js + Netlify server hosting a collection of tools and API endpoints. 
 | `/api/hockey` | Hockey scores |
 | `/api/huskies` | SCSU Huskies scores |
 | `/api/baseball` | Baseball scores |
+| `/api/config` | HUMAN captcha public config |
+| `/api/submit` | HUMAN captcha form submit (POST) |
+| `/api/enforce-debug` | HUMAN Enforce API debug preview |
 
 ## Tools
 
 Static tool pages are served from `public/tool1` through `public/tool13`.
+
+**captcha-on** — HUMAN Security press-and-hold iframe challenge demo at `/captcha-on/`. Requires `HUMAN_APP_ID` and `ENFORCER_AUTH_TOKEN` (see `.env.example`). Set the same variables in the Netlify site dashboard for production.
 
 ## Setup
 
