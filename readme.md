@@ -1,5 +1,46 @@
-we are unable to use the require() syntax since it only works with CommonJS. Node-fetch v3 was updated to an ESM-only module which now makes it so that instead of using require(), you will now need to use imports.
+# netlify-site1
 
-wget 'https://www.google.com/s2/favicons?domain=wild.com' -O favicon.ico
+An Express.js + Netlify server hosting a collection of tools and API endpoints. Deployed to `site1.bhenning.com`.
 
-https://scsuhuskies.com/services/scores_chris.aspx?format=json
+## Tech Stack
+
+- Node.js / Express
+- Axios for external API calls
+- Netlify Functions (serverless)
+- Docker / Nginx for local/self-hosted runs
+
+## API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `/api/cat-facts` | Random cat facts |
+| `/api/board` | Board/scoreboard data |
+| `/api/hockey` | Hockey scores |
+| `/api/huskies` | SCSU Huskies scores |
+| `/api/baseball` | Baseball scores |
+
+## Tools
+
+Static tool pages are served from `public/tool1` through `public/tool13`.
+
+## Setup
+
+```bash
+npm install
+```
+
+## Running
+
+```bash
+./run.sh
+```
+
+Or with Docker:
+
+```bash
+docker-compose up
+```
+
+## Deployment
+
+Deploys to Netlify via `netlify.toml`.
