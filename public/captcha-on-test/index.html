@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captcha Test</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f2f2f2;
+            color: #262626;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark {
+            background: #1a1a2e;
+            color: #e0e0e0;
+        }
+
+        .dark-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: "Segoe UI", sans-serif;
+            font-size: 14px;
+        }
+
+        .dark-toggle label {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: #c8c6c4;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background 0.25s ease;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.25s ease;
+        }
+
+        .toggle-switch input:checked + .toggle-track {
+            background: #0067b8;
+        }
+
+        .toggle-switch input:checked + .toggle-track::after {
+            transform: translateX(20px);
+        }
+
+        body.dark .toggle-track {
+            background: #555;
+        }
+
+        body.dark .toggle-switch input:checked + .toggle-track {
+            background: #4da3ff;
+        }
+
+        #challengeIframe {
+            display: block;
+            width: 300px;
+            height: 80px;
+            border: none;
+            background: transparent;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s linear 0.35s, opacity 0.35s ease;
+        }
+
+        #challengeIframe.captcha-ready {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.35s ease;
+        }
+
+        @media (max-width: 480px) {
+            #challengeIframe {
+                width: 340px;
+                height: 92px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dark-toggle">
+        <label for="darkModeToggle">Dark mode</label>
+        <label class="toggle-switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="toggle-track"></span>
+        </label>
+    </div>
+
+    <iframe id="challengeIframe" title="Verification challenge" width="300" height="80" inert></iframe>
+
+    <script>
+        let humanIframeOrigin = '';
+        let appId = '';
+        const CHALLENGE_UUID = crypto.randomUUID();
+        let humanSessionUuid = CHALLENGE_UUID;
+        let captchaRevealScheduled = false;
+
+        const challengeIframe = document.getElementById('challengeIframe');
+
+        const focusTrap = document.createElement('div');
+        focusTrap.setAttribute('tabindex', '-1');
+        focusTrap.style.cssText =
+            'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);left:-9999px;top:0;';
+        document.body.appendChild(focusTrap);
+
+        let focusGuardActive = false;
+        function runFocusGuard() {
+            if (!focusGuardActive) return;
+            if (document.activeElement === challengeIframe) {
+                focusTrap.focus({ preventScroll: true });
+            }
+            requestAnimationFrame(runFocusGuard);
+        }
+
+        const HUMAN_BUTTON_SIZE = { width: 253, height: 50 };
+        const HUMAN_BUTTON_SIZE_MOBILE = { width: 306, height: 62 };
+        const HUMAN_IFRAME_VIEWPORT = { width: 300, height: 80 };
+        const HUMAN_IFRAME_VIEWPORT_MOBILE = { width: 340, height: 92 };
+
+        function scheduleCaptchaReveal(ms) {
+            if (captchaRevealScheduled || challengeIframe.classList.contains('captcha-ready')) return;
+            captchaRevealScheduled = true;
+            setTimeout(() => {
+                focusGuardActive = false;
+                focusTrap.remove();
+                challengeIframe.removeAttribute('inert');
+                challengeIframe.classList.add('captcha-ready');
+            }, ms);
+        }
+
+        function isMobile() {
+            return window.matchMedia('(max-width: 480px)').matches;
+        }
+
+        function syncIframeViewport() {
+            const { width, height } = isMobile() ? HUMAN_IFRAME_VIEWPORT_MOBILE : HUMAN_IFRAME_VIEWPORT;
+            challengeIframe.width = String(width);
+            challengeIframe.height = String(height);
+            challengeIframe.style.width = width + 'px';
+            challengeIframe.style.height = height + 'px';
+        }
+
+        function humanChallengeIframeConfig() {
+            const { width, height } = isMobile() ? HUMAN_BUTTON_SIZE_MOBILE : HUMAN_BUTTON_SIZE;
+            return {
+                challenge: {
+                    context: { headerText: '', messageText: '' },
+                    translation: {
+                        default: {
+                            btn: 'Press & Hold',
+                            failed: 'Please try again',
+                            ctx_hdr: '', ctx_msg: '', ctx_rid: '',
+                            a11y: ' ',
+                        },
+                    },
+                    view: { preset: 1, width, height, textTransform: 'none' },
+                },
+            };
+        }
+
+        window.addEventListener('message', (e) => {
+            if (e.origin !== humanIframeOrigin) return;
+            if (e.source !== challengeIframe.contentWindow) return;
+
+            const { data } = e;
+            if (!data || typeof data !== 'object') return;
+
+            if (data.type === 'rendered') {
+                if (typeof data.height === 'number' && data.height > 0) {
+                    const h = Math.ceil(data.height);
+                    challengeIframe.height = String(h);
+                    challengeIframe.style.height = h + 'px';
+                }
+                if (typeof data.width === 'number' && data.width > 0) {
+                    const w = Math.ceil(data.width);
+                    challengeIframe.width = String(w);
+                    challengeIframe.style.width = w + 'px';
+                }
+                scheduleCaptchaReveal(2500);
+            }
+        });
+
+        function startChallenge() {
+            syncIframeViewport();
+            window.addEventListener('resize', syncIframeViewport);
+
+            challengeIframe.src = `${humanIframeOrigin}/index.html?app_id=${appId}&ch_ctx=1`;
+
+            challengeIframe.addEventListener('load', () => {
+                focusGuardActive = true;
+                requestAnimationFrame(runFocusGuard);
+
+                challengeIframe.contentWindow.postMessage(
+                    { type: 'setToWindow', key: '_' + appId, value: humanChallengeIframeConfig() },
+                    humanIframeOrigin
+                );
+                challengeIframe.contentWindow.postMessage(
+                    {
+                        type: 'block',
+                        jsonResponse: { vid: '', uuid: humanSessionUuid },
+                        requestUrl: location.href.split('#')[0],
+                    },
+                    humanIframeOrigin
+                );
+                setTimeout(() => scheduleCaptchaReveal(0), 6000);
+            }, { once: true });
+        }
+
+        async function bootstrap() {
+            const response = await fetch('/api/config');
+            const config = await response.json().catch(() => ({}));
+            if (!response.ok || !config.humanAppId) return;
+            humanIframeOrigin = config.humanIframeOrigin;
+            appId = config.humanAppId;
+            startChallenge();
+        }
+
+        bootstrap();
+
+        const darkToggle = document.getElementById('darkModeToggle');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function applyDark(on) {
+            document.body.classList.toggle('dark', on);
+            darkToggle.checked = on;
+            localStorage.setItem('darkMode', on ? '1' : '0');
+        }
+
+        const saved = localStorage.getItem('darkMode');
+        applyDark(saved !== null ? saved === '1' : prefersDark.matches);
+
+        darkToggle.addEventListener('change', () => applyDark(darkToggle.checked));
+    </script>
+</body>
+
+</html>

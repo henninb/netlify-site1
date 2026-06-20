@@ -7,6 +7,13 @@ cd "$ROOT_DIR"
 
 PORT="${PORT:-4000}"
 
+if [ -z "${HUMAN_APP_ID:-}" ]; then
+  if command -v gopass >/dev/null 2>&1; then
+    HUMAN_APP_ID="$(gopass show netlify-site8/px_app_id 2>/dev/null || true)"
+  fi
+fi
+export HUMAN_APP_ID
+
 if ! command -v node >/dev/null 2>&1; then
   echo "Node.js is required but was not found in PATH."
   exit 1
