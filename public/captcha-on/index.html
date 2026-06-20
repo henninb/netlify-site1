@@ -425,8 +425,10 @@
             requestAnimationFrame(runFocusGuard);
         }
 
+        let captchaRevealed = false;
         function scheduleCaptchaReveal(ms) {
-            if (challengeIframe.classList.contains('captcha-ready')) return;
+            if (captchaRevealed) return;
+            captchaRevealed = true;
             setTimeout(() => {
                 focusTrap.remove();
                 challengeIframe.classList.add('captcha-ready');
@@ -726,9 +728,8 @@
                         challengeIframe.width = String(w);
                         challengeIframe.style.width = w + 'px';
                     }
-                    // The accessibility tooltip appears when the challenge first renders.
-                    // Wait 2500ms after render so the tooltip auto-dismisses inside the
-                    // still-hidden iframe before we reveal it to the user.
+                    // Hold reveal for 2500ms while the rAF guard steals focus from the
+                    // iframe, preventing Chrome from painting the aria-label tooltip.
                     scheduleCaptchaReveal(2500);
                     break;
             }

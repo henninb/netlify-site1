@@ -69,23 +69,22 @@ the challenge is revealed.
 
 ```js
 const focusTrap = document.createElement('div');
-focusTrap.setAttribute('tabindex', '-1');
+focusTrap.tabIndex = -1;
 focusTrap.style.cssText =
     'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);left:-9999px;top:0;';
 document.body.appendChild(focusTrap);
 
-let focusGuardActive = false;
 function runFocusGuard() {
-    if (!focusGuardActive) return;
-    if (document.activeElement === challengeIframe) {
-        focusTrap.focus({ preventScroll: true });
-    }
+    if (challengeIframe.classList.contains('captcha-ready')) return;
+    if (document.activeElement === challengeIframe) focusTrap.focus({ preventScroll: true });
     requestAnimationFrame(runFocusGuard);
 }
 ```
 
-The guard is started in the iframe's `load` event handler and stopped inside
-`scheduleCaptchaReveal()` when the challenge is made visible.
+The guard starts in the iframe's `load` event handler (`requestAnimationFrame(runFocusGuard)`)
+and terminates itself once `captcha-ready` is on the iframe. A `captchaRevealed` boolean
+in `scheduleCaptchaReveal` ensures only one reveal timer is ever queued, even if HUMAN's
+SDK fires `rendered` more than once.
 
 
 ### Supporting mechanism
@@ -112,19 +111,21 @@ fix first worked, but neither is necessary:
 page load
   └─ bootstrap() → /api/config
        └─ startChallenge()
-            ├─ iframe src set  (iframe starts loading; inert, visibility:hidden)
+            ├─ iframe src set  (opacity: 0)
             └─ iframe load
-                 ├─ postMessage: setToWindow (config + a11y:' ')
+                 ├─ requestAnimationFrame(runFocusGuard) starts
+                 ├─ postMessage: setToWindow (challenge config)
                  ├─ postMessage: block       (initiates challenge render)
-                 ├─ focusGuardActive = true → runFocusGuard() starts
                  └─ fallback: scheduleCaptchaReveal(0) after 6 s
 
   iframe renders → 'rendered' postMessage received by parent
-       └─ scheduleCaptchaReveal(2500)
+       └─ scheduleCaptchaReveal(2500)   ← captchaRevealed=true; subsequent calls are no-ops
             └─ after 2500 ms:
-                 ├─ focusGuardActive = false  (guard stops)
                  ├─ focusTrap.remove()
-                 ├─ challengeIframe.removeAttribute('inert')
                  └─ challengeIframe.classList.add('captcha-ready')
-                      → visibility:visible, opacity:1 (fades in)
+                      → opacity: 1 (fades in via CSS transition)
+
+  every frame until captcha-ready:
+       └─ runFocusGuard: if document.activeElement === iframe → focusTrap.focus()
+            (evicts focus from iframe's browsing context; Chrome never paints the tooltip)
 ```
