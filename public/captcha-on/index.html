@@ -166,17 +166,12 @@
             height: 80px;
             border: none;
             background: transparent;
-            /* visibility:hidden (unlike opacity:0) removes the element from the
-               accessibility tree, so Chrome won't show its aria-label tooltip. */
-            visibility: hidden;
-            transition: visibility 0s linear 0.35s, opacity 0.35s ease;
             opacity: 0;
+            transition: opacity 0.35s ease;
         }
 
         #challengeIframe.captcha-ready {
-            visibility: visible;
             opacity: 1;
-            transition: opacity 0.35s ease;
         }
 
         @media (max-width: 480px) {
@@ -358,7 +353,7 @@
                         <p class="human-challenge__message" id="challengeMessage"></p>
                         <div class="captcha-frame-wrap" id="captchaWrap">
                             <div class="captcha-frame-inner">
-                                <iframe id="challengeIframe" title="Verification challenge" width="300" height="80" inert></iframe>
+                                <iframe id="challengeIframe" title="Verification challenge" width="300" height="80"></iframe>
                             </div>
                         </div>
                         <p class="human-challenge__reference" id="challengeReference"></p>
@@ -442,7 +437,6 @@
             setTimeout(() => {
                 focusGuardActive = false;
                 focusTrap.remove();
-                challengeIframe.removeAttribute('inert');
                 challengeIframe.classList.add('captcha-ready');
             }, ms);
         }
