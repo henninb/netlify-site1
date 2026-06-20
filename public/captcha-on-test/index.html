@@ -147,8 +147,10 @@
         const HUMAN_IFRAME_VIEWPORT = { width: 300, height: 80 };
         const HUMAN_IFRAME_VIEWPORT_MOBILE = { width: 340, height: 92 };
 
+        let captchaRevealed = false;
         function scheduleCaptchaReveal(ms) {
-            if (challengeIframe.classList.contains('captcha-ready')) return;
+            if (captchaRevealed) return;
+            captchaRevealed = true;
             setTimeout(() => {
                 focusTrap.remove();
                 challengeIframe.classList.add('captcha-ready');
