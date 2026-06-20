@@ -87,25 +87,6 @@ function runFocusGuard() {
 The guard is started in the iframe's `load` event handler and stopped inside
 `scheduleCaptchaReveal()` when the challenge is made visible.
 
-### 2. `a11y: ' '` translation key (belt and suspenders)
-
-The HUMAN SDK's `setToWindow` postMessage accepts a `translation.default` object.
-Setting `a11y: ' '` (a space) appears to override the aria-label of the accessibility
-button with a blank string. Chrome does not display a tooltip for an effectively-empty
-label, so even if focus reaches the button, no tooltip text appears.
-
-```js
-translation: {
-    default: {
-        btn: 'Press & Hold',
-        failed: 'Please try again',
-        ctx_hdr: '',
-        ctx_msg: '',
-        ctx_rid: '',
-        a11y: ' ',   // blanks the aria-label → no tooltip text
-    },
-},
-```
 
 ### Supporting mechanism
 

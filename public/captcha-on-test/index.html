@@ -129,22 +129,16 @@
         let appId = '';
         const CHALLENGE_UUID = crypto.randomUUID();
         let humanSessionUuid = CHALLENGE_UUID;
-        let captchaRevealScheduled = false;
-
         const challengeIframe = document.getElementById('challengeIframe');
 
         const focusTrap = document.createElement('div');
-        focusTrap.setAttribute('tabindex', '-1');
-        focusTrap.style.cssText =
-            'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);left:-9999px;top:0;';
+        focusTrap.tabIndex = -1;
+        focusTrap.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);left:-9999px;top:0;';
         document.body.appendChild(focusTrap);
 
-        let focusGuardActive = false;
         function runFocusGuard() {
-            if (!focusGuardActive) return;
-            if (document.activeElement === challengeIframe) {
-                focusTrap.focus({ preventScroll: true });
-            }
+            if (challengeIframe.classList.contains('captcha-ready')) return;
+            if (document.activeElement === challengeIframe) focusTrap.focus({ preventScroll: true });
             requestAnimationFrame(runFocusGuard);
         }
 
@@ -154,10 +148,8 @@
         const HUMAN_IFRAME_VIEWPORT_MOBILE = { width: 340, height: 92 };
 
         function scheduleCaptchaReveal(ms) {
-            if (captchaRevealScheduled || challengeIframe.classList.contains('captcha-ready')) return;
-            captchaRevealScheduled = true;
+            if (challengeIframe.classList.contains('captcha-ready')) return;
             setTimeout(() => {
-                focusGuardActive = false;
                 focusTrap.remove();
                 challengeIframe.classList.add('captcha-ready');
             }, ms);
@@ -185,7 +177,6 @@
                             btn: 'Press & Hold',
                             failed: 'Please try again',
                             ctx_hdr: '', ctx_msg: '', ctx_rid: '',
-                            a11y: ' ',
                         },
                     },
                     view: { preset: 1, width, height, textTransform: 'none' },
@@ -222,7 +213,6 @@
             challengeIframe.src = `${humanIframeOrigin}/index.html?app_id=${appId}&ch_ctx=1`;
 
             challengeIframe.addEventListener('load', () => {
-                focusGuardActive = true;
                 requestAnimationFrame(runFocusGuard);
 
                 challengeIframe.contentWindow.postMessage(

@@ -409,33 +409,25 @@
 
         let captchaPassed = false;
         let cookiesSettled = false;
-        let captchaRevealScheduled = false;
 
-        // A hidden focusable element in the parent. Actively focusing it (not just
-        // blurring the iframe) pulls focus out of the iframe's own document, which
-        // is what Chrome uses to decide whether to paint the aria-label tooltip.
+        // Actively focusing a parent element (not just blurring the iframe) evicts
+        // focus from the iframe's own document — which is what Chrome keys the
+        // aria-label tooltip off. The rAF loop runs every frame so the steal happens
+        // before Chrome can paint the tooltip.
         const focusTrap = document.createElement('div');
-        focusTrap.setAttribute('tabindex', '-1');
-        focusTrap.style.cssText =
-            'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);left:-9999px;top:0;';
+        focusTrap.tabIndex = -1;
+        focusTrap.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);left:-9999px;top:0;';
         document.body.appendChild(focusTrap);
 
-        // rAF loop: steal focus from the iframe every frame before Chrome can paint
-        // the tooltip. Runs until the challenge is revealed.
-        let focusGuardActive = false;
         function runFocusGuard() {
-            if (!focusGuardActive) return;
-            if (document.activeElement === challengeIframe) {
-                focusTrap.focus({ preventScroll: true });
-            }
+            if (challengeIframe.classList.contains('captcha-ready')) return;
+            if (document.activeElement === challengeIframe) focusTrap.focus({ preventScroll: true });
             requestAnimationFrame(runFocusGuard);
         }
 
         function scheduleCaptchaReveal(ms) {
-            if (captchaRevealScheduled || challengeIframe.classList.contains('captcha-ready')) return;
-            captchaRevealScheduled = true;
+            if (challengeIframe.classList.contains('captcha-ready')) return;
             setTimeout(() => {
-                focusGuardActive = false;
                 focusTrap.remove();
                 challengeIframe.classList.add('captcha-ready');
             }, ms);
@@ -807,10 +799,6 @@
                             ctx_hdr: '',
                             ctx_msg: '',
                             ctx_rid: '',
-                            // Attempt to blank the accessibility button's aria-label so
-                            // Chrome has no text to show as a tooltip. Key name is a guess
-                            // at HUMAN SDK's internal translation key for that label.
-                            a11y: ' ',
                         },
                     },
                     view: {
@@ -831,9 +819,6 @@
             challengeIframe.src = `${humanIframeOrigin}/index.html?app_id=${appId}&ch_ctx=1`;
 
             challengeIframe.addEventListener('load', () => {
-                // Start the rAF focus guard now so it's active when HUMAN SDK
-                // calls button.focus() after processing the block message.
-                focusGuardActive = true;
                 requestAnimationFrame(runFocusGuard);
 
                 challengeIframe.contentWindow.postMessage(
