@@ -108,6 +108,10 @@ app.get('/api/baseball', async (_req, response) => {
   response.send(JSON.stringify(data));
 });
 
-app.listen(port, () => {
-  console.log(`listening on port ${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`listening on port ${port}`);
+  });
+}
+
+module.exports = app;
