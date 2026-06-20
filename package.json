@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": ">=24.x"
+  },
   "dependencies": {
     "dotenv": "^17.4.2",
     "node-fetch": "^3.3.2",
